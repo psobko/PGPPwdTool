@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PGP Password Tool</title>
+</head>
+<body>
+
+<!-- Base Template -->
+	<div data-bind="foreach: views">
+       <a href="#" data-bind="text: title, click: $root.selectedView"></a>&nbsp;
+   </div>
+   <hr/>
+
+   <div data-bind="with: selectedView">
+    <div data-bind="template: { name: templateName, data: data }"></div>
+    </div>
+
+    <!-- Templates - Move Later -->
+    <script id="oneTmpl" type="text/html">
+        <table class="list" >
+            <thead>
+                <tr>
+                    <th>location</th>
+                    <th>username</th>
+                    <th>password</th>
+                    <th>date</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: passwords">
+            <tr data-bind="">
+                <td data-bind="text: location"></td>
+                <td data-bind="text: username "></td>
+                <td data-bind="editInPlace: password"></td>
+                <td data-bind="editInPlace: date"></td>
+                <td data-bind="click: $parent.removePassword">X</td>
+            </tr>     
+            </tbody>
+        </table>
+        <button data-bind="click: addPassword">Add</button>
+    </script>
+
+    <script id="twoTmpl" type="text/html">
+        First: <input data-bind="value: firstName">
+        Last:  <input data-bind="value: lastName">
+    </script>
+
+    <!-- JS -->
+    <script src="openpgp.min.js"></script> 
+    <script src="jquery-1.9.1.min.js"></script>
+    <script src="knockout-2.2.1.js" ></script>
+    <script src="encryptor.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
