@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<!-- Base Template -->
+    <!-- Base Template -->
 	<div data-bind="foreach: views">
        <a href="#" data-bind="text: title, click: $root.selectedView"></a>&nbsp;
    </div>
@@ -27,21 +27,47 @@
                 </tr>
             </thead>
             <tbody data-bind="foreach: passwords">
-            <tr data-bind="">
-                <td data-bind="text: location"></td>
-                <td data-bind="text: username "></td>
-                <td data-bind="editInPlace: password"></td>
-                <td data-bind="editInPlace: date"></td>
+                <tr data-bind="">
+                <td>
+                <input type="text" placeholder="location" 
+                 data-bind="value: location, 
+                            editInPlace:location
+                            ">
+                </td>
+                <td>
+                <input type="text" placeholder="username"
+                 data-bind="value: username, 
+                            editInPlace:username
+                            ">
+                </td>
+                <td>
+                <input type="text" placeholder="password"
+                 data-bind="value: password, 
+                            editInPlace:password
+                            ">
+                </td>
+                <td>
+                <input type="text" placeholder="date"
+                 data-bind="value: date, 
+                            editInPlace:date
+                            ">
+                </td>
                 <td data-bind="click: $parent.removePassword">X</td>
-            </tr>     
+                </tr>     
             </tbody>
         </table>
-        <button data-bind="click: addPassword">Add</button>
+        <div>
+            <button data-bind="click: addPassword">Add</button>
+            <button data-bind='click: save, enable: passwords().length > 0'>Save to JSON</button>
+        </div>
+        <div>
+            <textarea data-bind='value: lastSavedJson' rows='5' cols='60' disabled='disabled'> </textarea>
+        </div>
     </script>
 
     <script id="twoTmpl" type="text/html">
-        First: <input data-bind="value: firstName">
-        Last:  <input data-bind="value: lastName">
+        First: <input data-bind="value: keyName">
+        Last:  <input data-bind="value: generatedDate">
     </script>
 
     <!-- JS -->
@@ -50,5 +76,6 @@
     <script src="knockout-2.2.1.js" ></script>
     <script src="encryptor.js"></script>
     <script src="app.js"></script>
+    <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </body>
 </html>

@@ -1,57 +1,85 @@
 $(function () { 
 
+var todo = function(msg){
+console.log(msg)
+};
 //Custom Bindings
+	
 	ko.bindingHandlers.editInPlace = {
 	    init: function(element, valueAccessor) {
-	        var observable = valueAccessor();
-	       
-	        $(element)
-	        .click(function() {
-						$(element).wrap('<input type="text" value='+observable+'>')
-						.parent()
-			    	.blur(function() {
-							$(this).unwrap();
-							console.log(asd);
-						})
-      			.keypress(function(e) {
+
+	    	$(element)
+	    	.click(
+	    		function() {
+	    			todo('add border');
+	    			$(this).select();
+	    	})
+	    	.hover(
+	    		function() {
+	    			todo('add underline')
+	    		},
+	    		function() {
+	    			todo('remove underline')
+	    		}
+	    	)
+	    	.blur(function() {
+	    		todo('remove border')
+	    	})
+	    	.keypress(function(e) {
       				code = (e.keyCode ? e.keyCode : e.which);
-      				if (code == 13) alert('Enter key was pressed.');
-        				e.preventDefault();
-        			})
-        			.text(observable);
-	        	})
-	    },
-	    //update handler is given bound element + func to return assosciated data
+      				if (code === 13){
+      					alert('Enter key was pressed.');
+      					e.preventDefault();
+        			}
+    			});
+	    	},
+   
 	    update: function(element, valueAccessor) {
-	        // On update, fade in/out
+				todo('add flash - save');
+	    } 
+	};
+
+	ko.bindingHandlers.fadeVisible = {
+	    init: function(element, valueAccessor) {
+	        var shouldDisplay = valueAccessor();
+	        //$(element).toggle(shouldDisplay);
+	    },
+	    update: function(element, valueAccessor) {
 	        var shouldDisplay = valueAccessor();
 	        shouldDisplay ? $(element).fadeIn() : $(element).fadeOut();
 	    } 
 	};
 
-	//View Controller
-	var View = function(title, templateName, data) {
-		this.title = title;
-		this.templateName = templateName;
-		this.data = data; 
+	//View Models
+	var Password = function() {
+	    var self = this;
+	    self.location = ko.observable('');
+	    self.username = ko.observable('');
+	    self.password = ko.observable('');
+	    self.date = ko.observable('');
 	};
 
 	var PasswordsModel = function(){
 	    var self = this;
-
-	    self.passwords = ko.observableArray([
-	        { location: "home", username: "one", password: "pwd", date: "1may" },
-	        { location: "home1", username: "one1", password: "pw1d", date: "1may" },
-	        { location: "home2", username: "one2", password: "pw2d",  date: "1may" }
-	     ]);
+    
+  	  self.passwords = ko.observableArray([new Password()]);
+			self.lastSavedJson = ko.observable("");
 
 	    self.addPassword = function() { 
-	    	self.passwords.push({ location: "location", username: "username", password: "password", date: "date" })
+	    	self.passwords.push(new Password);
 	    };
 
 	    self.removePassword = function(password) {
-	    	self.passwords.remove(password); 
+	    	self.passwords.remove(password);
 	    };
+
+	    self.editEntry = function(edit){
+
+	    };
+
+	    self.save = function() {
+        self.lastSavedJson(JSON.stringify(ko.toJS(self.passwords), null, 2));
+    	};
 	};
 
 	var KeyModel = function(){
@@ -59,6 +87,13 @@ $(function () {
 	    this.generatedDate= ko.observable("Dec 11 1988");
 	};
 
+	//Views Controller
+	var View = function(title, templateName, data) {
+		this.title = title;
+		this.templateName = templateName;
+		this.data = data; 
+	};
+	
 	var viewModel = {
 	    views: ko.observableArray([
 	        new View("Pwds", "oneTmpl", new PasswordsModel),
