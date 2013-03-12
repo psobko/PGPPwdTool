@@ -3,7 +3,9 @@ var encrpytor = (function() {
 	var pubKey = null,
 		privKey = null,
 		sesskey = null,
-		keyMat = null;
+		keyMat = null,
+		keyPair = null,
+		self = this;
 
 	var encrpytor = function(){
 		openpgp.init();
@@ -12,10 +14,20 @@ var encrpytor = (function() {
 	encrpytor.prototype = {
 		constructor: encrpytor,
 		generateKeys: function(strength, password) {
-			var keyPair = openpgp.generate_key_pair(1, strength, 'openpgp-test', password);
+			keyPair = openpgp.generate_key_pair(1, strength, 'openpgp-test', password);
 			pubKey = openpgp.read_publicKey(keyPair.publicKeyArmored);
 			privKey = openpgp.read_privateKey(keyPair.privateKeyArmored);
-			console.log(keyPair);
+		},
+		getKeyStrings: function() {
+			var keyStrings = [
+				keyPair.publicKeyArmored,
+				keyPair.privateKeyArmored
+			];
+			return keyStrings;
+		},
+		importKeys: function(publicKey, privateKey) {
+			pubKey = openpgp.read_publicKey(publicKey);
+			privKey = openpgp.read_privateKey(privateKey);
 		},
 		encryptMsg: function(message) {
 			var ciphertext = openpgp.write_encrypted_message(pubKey, message);
