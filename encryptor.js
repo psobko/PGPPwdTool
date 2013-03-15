@@ -34,6 +34,7 @@ var encrpytor = (function() {
 			return ciphertext;
 		},
 		decryptMsg: function(encMsg, password) {
+
 			var msg = openpgp.read_message(encMsg);
 			
 			for (var i = 0; i< msg[0].sessionKeys.length; i++) {
