@@ -1,8 +1,8 @@
 $(function () { 
+/*============================================================
+  Behaviours
+  ============================================================*/
 
-  var pwdEncryptor = new encrpytor;
-
-  //Behaviours
   var generateKeys = function (encVal, passVal, callback) {
     pwdEncryptor.generateKeys(encVal, passVal);
     callback(pwdEncryptor.getKeyStrings());
@@ -14,20 +14,37 @@ $(function () {
 
   var checkData = function() {
     if(!self.encryptedData) self.flashText = 'No encrypted data';
-  }
+  };
 
   var checkAuthentication = function(){
     return viewModel.isAuthenticated;
-  }
+  };
 
-  var setFlash = function(message){
-    viewModel.flashText(message);
-    console.log(message);
-  }
+  var setFlash = function(message, handler){
+    console.log(viewModel.flashText);
+    var flashArray = [];
+    console.log(flashArray);
+    flashArray.push({'message':message, 'handler':handler});
+    console.log(flashArray);
+    viewModel.flashText(flashArray);
+    //viewModel.flashText.push({'abc':'abc'});
+    //viewModel.flashText().push({'message':message, 'handler':handler});
+    //ko.applyBindings(viewModel, document.getElementById('flash'));
+  };
 
   var changeView = function(viewID){
     if(!viewModel.isAuthenticated()) viewID = 2;
     viewModel.selectedView(viewModel.views()[viewID]);
+  };
+
+  var saveConfig = function(param, value){
+    var newConfig = viewModel.config();
+    newConfig[param] = value;
+    viewModel.config(newConfig);
+  };
+
+  var encrypt = function(){
+    todo('asd');
   }
 
   //Helper function
@@ -35,7 +52,9 @@ $(function () {
     console.log(msg);
   };
 
-  //Custom Bindings
+  /*============================================================
+  Custom Bindings
+  ============================================================*/
   ko.bindingHandlers.fadeVisible = {
     init: function(element, valueAccessor) {
         var shouldDisplay = valueAccessor();
@@ -70,7 +89,13 @@ $(function () {
       } 
   };
 
-  //View Models
+/*============================================================
+  View Models
+  ============================================================*/
+
+  /******************
+   *Decryption Model
+   ******************/
   var DecryptModel = function(){
     var self = this;
     
@@ -89,8 +114,7 @@ $(function () {
         changeView(0);
         viewModel.passwords([]);
         // self.addPassword();
-      }
-      
+      };
     };
     
     self.decrypt = function(){
@@ -104,7 +128,7 @@ $(function () {
       try {
         passwordArray = JSON.parse(decrypted);
         viewModel.isAuthenticated(true);
-        viewModel.flashText(null);
+        viewModel.flashText([]);
         changeView(0)
       }
       catch (e) {
@@ -113,8 +137,11 @@ $(function () {
       }
       viewModel.passwords(passwordArray);
     };
-  }
-
+  };
+  
+  /******************
+   *Passwords Model
+   ******************/
   var Password = function() {
     var self = this;
     self.location = ko.observable('');
@@ -127,11 +154,10 @@ $(function () {
     var self = this;
   
     self.lastSavedJson = ko.observable(null, {persist: 'lastSavedJson'});
-    //self.passwords = ko.observableArray([]);
 
     self.addPassword = function() { 
       viewModel.passwords.push(new Password);
-      setFlash('Unsaved data!');
+      setFlash('Unsaved data! <a href="#" data-bind="click: Click here to save.', self.encrypt);
       viewModel.isSaved = false;
     };
 
@@ -145,31 +171,74 @@ $(function () {
     };
 
     self.encrypt = function() {
+      todo('encrypt');
       pwdEncryptor.importKeys(viewModel.publicKey(), viewModel.privateKey());
       var passwordJSON = JSON.stringify(ko.toJS(viewModel.passwords), null, 2);
       var encrypted = pwdEncryptor.encryptMsg(passwordJSON);
       viewModel.encryptedData(encrypted);
       self.lastSavedJson(JSON.stringify(ko.toJS(viewModel.passwords), null, 2));
-      setFlash(null);
+      setFlash(null, null);
     };
 
   };
 
+  /******************
+   *Key Model
+   ******************/
   var KeyModel = function(){
-      var self = this;
+    var self = this;
 
-      self.keyHint = ko.observable("key hint");
-      self.keyDate = ko.observable(new Date().toLocaleString(), {persist: 'keyDate'});
+    self.keyHint = ko.observable('key hint');
+    self.keyDate = ko.observable(new Date().toLocaleString(), {persist: 'keyDate'});
+    self.exportOptions = ko.observable('pub');
 
-      this.genKeys = function(){
-        generateKeys(512, 'asd', function(keystrings) {
-          viewModel.publicKey(keystrings[0]);
-          viewModel.privateKey(keystrings[1]);
-        });
-      };
+    self.genKeys = function(){
+      generateKeys(512, 'asd', function(keystrings) {
+        viewModel.publicKey(keystrings[0]);
+        viewModel.privateKey(keystrings[1]);
+      });
+    };
+
+    self.exportKeys = function(){
+      var exportData = (self.exportOptions() === 'pub') ? viewModel.publicKey() : viewModel.publicKey() + '\n\n' + viewModel.privateKey() + '\n\n' ;
+      
+      //alternative saving - does not require external library but may not be supported by all browsers
+      window.location='data:text/csv;charset=utf8,' + encodeURIComponent(viewModel.publicKey());
+      saveConfig('dateSaved', new Date().toLocaleString());    
+
+      // try {
+      //   saveAs(
+      //     new Blob(
+      //           [exportData + viewModel.encryptedData()],
+      //           {type: "text/plain;charset=" + document.characterSet}
+      //           ), 
+      //     'pwdData.txt'
+      //     );  
+
+      //   viewModel.config().dateSaved(new Date().toLocaleString());
+      // }
+      // catch(e){
+      //   viewModel.flashText('Export Failed');
+      // }
+    };
+  };
+  
+  /******************
+   *Settings Model
+   ******************/
+  var SettingsModel = function(){
+    var self = this;
+
+    self.config = viewModel.config();
+    
+    self.saveConfig = function(){
+      viewModel.config(self.config);
+    };
   };
 
-  //Views Controller
+/*============================================================
+  View Controller
+  ============================================================*/
   var View = function(title, templateName, data, visible) {
     this.title = title;
     this.templateName = templateName;
@@ -178,34 +247,57 @@ $(function () {
   };
   
   var viewModel = {
+      config: ko.observable({storePriv:false,
+                              'storePub':false,
+                              'storeData':false,
+                              'dateGenerated':null,
+                              'dateSaved':null,
+                            }, {persist: 'configData'}),
       publicKey: ko.observable(null, {persist: 'publicKey'}),
       privateKey: ko.observable(null, {persist: 'privateKey'}),
       encryptedData: ko.observable(null, {persist: 'encryptedData'}),
       passwords: ko.observableArray([]),
       isSaved : ko.observable(true),
-      isAuthenticated : ko.observable(null),
-      flashText : ko.observable(null),
-      views: ko.observableArray([
-          new View("Pwds", "oneTmpl", new PasswordsModel, true),
-          new View("Export", "twoTmpl", new KeyModel, true),
-          new View("Decrypt", "threeTmpl", new DecryptModel, false),
-          ]),
+      isAuthenticated : ko.observable(false),
+      flashText : ko.observableArray([]),
+      views: ko.observableArray([]),
       selectedView: ko.observable(0),
-
   };
 
-changeView(0);
-checkData();
-ko.applyBindings(viewModel);
+/*============================================================
+  Init
+  ============================================================*/
 
+  viewModel['views'] = ko.observableArray([
+            new View("Pwds", "pwdsTmpl", new PasswordsModel, true),
+            new View("Export", "exportTmpl", new KeyModel, true),
+            new View("Decrypt", "decryptTmpl", new DecryptModel, false),
+            new View("Settings", "settingsTmpl", new SettingsModel, true),
+            ]);
+  
+  var pwdEncryptor = new encrpytor;
+
+  checkData();
+  changeView(0)
+
+  ko.applyBindings(viewModel);
+  
 });
+
+/*============================================================
+  Move / Todo
+  ============================================================*/
 
 //OpenPGP Message Helper - Needs to be in calling context
 var showMessages = function(text){
   console.log($(text).text());
 };
 
-$(window).bind("beforeunload",function(event) {
+$(window).bind("beforeunload", function(event) {
     //if(viewModel.isSaved) 
       // return "You have unsaved changes";
 });
+
+//Issues with the flash text - had to create an array in order to
+// maintain bindings but now there flash container is permanently 
+// displayed.

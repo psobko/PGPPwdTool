@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
+    <title>PWD Tool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -10,8 +10,8 @@
     <!-- Le styles -->
     <link href="./css/bootstrap.css" rel="stylesheet">
     <link href="./css/bootstrap-responsive.css" rel="stylesheet">
-
     <!-- <link href="./css/style.css" rel="stylesheet"> -->
+    
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -20,6 +20,20 @@
         border:1px solid transparent !important;
         box-shadow: none !important;
         background: transparent !important; 
+      }
+      .span-full {
+        width: 100%;
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
+      }
+      .notification{
+        right: 24px;
+        top: 8px;
+        position: absolute;
+      }
+      .tab-pane{
+        position: relative;
       }
     </style>
 
@@ -48,7 +62,7 @@
           <a class="brand" href="#">Password Tool</a>
 
           <div class="nav-collapse collapse ">
-            <ul class="nav" data-bind="foreach: views">
+            <ul class="nav" data-bind="foreach: views, fadeVisible: $root.isAuthenticated()">
               <li class="active" data-bind="if: visible"><a href="#" data-bind="text: title, click: $root.selectedView"></a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -76,14 +90,17 @@
     <!-- Placed at the end of the document so the pages load faster -->
 
 <!-- Templates - Move Later -->
-  <script id="oneTmpl" type="text/html">
-
-    <div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
-      <span data-bind="html:$root.flashText"></span>
-      <button type="button" class="close" data-dismiss="alert">×</button>
-    </div>
+  <script id="pwdsTmpl" type="text/html">
+  <!-- aler alert-error-->
+    <div data-bind="foreach:$root.flashText()">
+      <div class="alert alert-error textcenter" id="flash" data-bind="fadeVisible:$root.flashText()">
+        <span data-bind="html:message"></span>
+        <a href="" data-bind="click: handler">asd</a>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    </div
     <div class="row">
-      <table class="table table-hover span8" data-bind="fadeVisible: $root.isAuthenticated()">
+      <table class="table table-hover" data-bind="fadeVisible: $root.isAuthenticated()">
         <thead>
           <tr>
             <th>location</th>
@@ -95,101 +112,130 @@
           <tbody data-bind="foreach: $root.passwords">
             <tr data-bind="">
             <td>
-            <input type="text" placeholder="location" class="inactive"
+            <input type="text" placeholder="location" class="inactive span3"
              data-bind="value: location, 
                   editInPlace:location
                   ">
             </td>
             <td>
-            <input type="text" placeholder="username" class="inactive"
+            <input type="text" placeholder="username" class="inactive span3"
              data-bind="value: username, 
                   editInPlace:username
                   ">
             </td>
             <td>
-            <input type="password" placeholder="password" class="inactive"
+            <input type="password" placeholder="password" class="inactive span3"
              data-bind="value: password, 
                   editInPlace:password
                   ">
             </td>
-            <td ><span data-bind="text: date">
+            <td ><span data-bind="text: date" class="span3">
             </td>
             <td data-bind="click:$parent.removePassword"><i class="icon-trash"></i></td>
             </tr>     
           </tbody>
       </table>
-
-
-        <div class="btn-toolbar">
-          <button class="btn btn-primary" data-bind="click: addPassword">New Password</button>
-          <button class="btn" data-bind="click: encrypt">Save</button>
-        </div>
-        <div>
-          <textarea data-bind='value: lastSavedJson' rows='5' cols='60' > </textarea>
-          <textarea data-bind='value: $root.encryptedData' rows='5' cols='60' > </textarea>
-        </div>
+    </div>
+    <div class="btn-toolbar pull-right">
+      <button class="btn btn-primary" data-bind="click: addPassword">New Password</button>
+      <button class="btn" data-bind="click: encrypt">Save</button>
+    </div>
+    <div>
+      <textarea data-bind='value: lastSavedJson' rows='5' cols='60' > </textarea>
+    </div>
   </script>
 
-  <script id="twoTmpl" type="text/html">
-    <div class="well">
-      <ul class="nav nav-tabs">
-        <li class="active"><a href="#keys" data-toggle="tab">Keys</a></li>
-        <li><a href="#data" data-toggle="tab">Password Data</a></li>
+  <script id="exportTmpl" type="text/html">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#data" data-toggle="tab">Password Data</a></li>
+        <li><a href="#pub-key" data-toggle="tab">Public Key</a></li>
+        <li><a href="#priv-key" data-toggle="tab">Private Key</a></li>
       </ul>
+    <div class="well clearfix">
+      
       <div id="myTabContent" class="tab-content">
-      <div class="tab-pane active in" id="keys">
-        <textarea class="span6" id="new_message" name="new_message"
-        placeholder="Click generate below..." rows="5" data-bind="value: $root.publicKey"></textarea>
-        <textarea class="span6" id="new_message" name="new_message"
-        placeholder="Click generate below..." rows="5" data-bind="value: $root.privateKey"></textarea>
-        <h6 class="pull-right">Generated: <span data-bind="text: keyDate"></span></h6>
-        
+        <div class="tab-pane active in" id="data">
+          <textarea class="span-full" id="new_message" name="new_message"
+          placeholder="Click generate below..." rows="5" data-bind="value: $root.encryptedData"></textarea>
+          <span class="notification label">Last Saved: <em data-bind="text: $root.config().dateSaved"></em></span>
+        </div>
+        <div class="tab-pane fade" id="pub-key">
+          <textarea class="span-full" id="new_message" name="new_message"
+          placeholder="Click generate below..." rows="5" data-bind="value: $root.publicKey"></textarea>
+          <span class="notification label">Generated: <em data-bind="text: keyDate"></em></span>
+        </div>
+        <div class="tab-pane fade" id="priv-key">
+          <textarea class="span-full" id="new_message" name="new_message"
+          placeholder="Click generate below..." rows="5" data-bind="value: $root.privateKey"></textarea>
+          <span class="notification label">Generated: <em data-bind="text: keyDate"></em></span>
+        </div>
+    </div>
+  </div>
+  <div class="btn-toolbar pull-right ">
+    <button class="btn btn-danger">Delete Data</button>
+    <button class="btn btn-success" href="#exportModal" data-toggle="modal">Export Data</button>
+    <!-- <button class="btn btn-info" data-bind="click:genKeys">Generate New</button> -->
+  </div>
+
+  <!-- Export Modal-->
+  <div id="exportModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true" >
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="exportModalLabel">Export Data</h3>
       </div>
-      <div class="tab-pane fade" id="data">
-        <textarea class="span6" id="new_message" name="new_message"
-        placeholder="Click generate below..." rows="5" data-bind="value: $root.privateKey"></textarea>
-      </div>
-      <button class="btn btn-danger">Delete</button>
-        <button class="btn btn-success">Export</button>
-        <button class="btn btn-info" data-bind="click:genKeys">Generate New</button>
+      <div class="modal-body">
+        <form data-bind="submit: exportKeys">
+          <label class="radio">
+          <input type="radio" value="pub" data-bind="checked: exportOptions"> Public Key and Encrypted Data
+          </label>
+          <label class="radio">
+          <input type="radio" value="priv" data-bind="checked: exportOptions"> Public/Private Keys and Encrypted Data
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          <button class="btn btn-primary" type="submit" >Export</button>
+        </div>
+      </form>
     </div>
   </script>
 
-  <script id="threeTmpl" type="text/html">
-      <!-- Decryption Prompt -->
-
-        <div class="" data-bind="fadeVisible:!$root.isAuthenticated()">
-          <div class="span4 offset4 well">
-            <legend>Decrypt Data</legend>
-            <div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
-              <span data-bind="html:$root.flashText"></span>
-              <button type="button" class="close" data-dismiss="alert">×</button>
-            </div>
-            <p class="text-error" data-bind="fadeVisible: !$root.encryptedData()">Warning: No encrypted data, import or new?</p>
-            <textarea rows='5' class="span4" placeholder="Private Key" data-bind="value: $root.privateKey"></textarea>
-            <input type="password" class="span4" placeholder="Password"  data-bind="value: decryptionPwd">
-            <label class="checkbox">
-              <input type="checkbox" name="remember" value="1"> Remember private key
-            </label>
-            <div class="btn-toolbar pull-right">
-              <button href="#importModal" class="btn" data-toggle="modal">Import/New</button>
-              <button class="btn-info btn" data-bind="click: decrypt, 
-                text: $root.encryptedData() ? 'Decrypt' : 'No Data',
-                enable: $root.encryptedData()">Decrypt</button>      
-            </div>
-          </div>
+  <script id="decryptTmpl" type="text/html">
+        <!-- Decryption Prompt -->
+    <div class="" data-bind="fadeVisible:!$root.isAuthenticated()">
+      <div class="span4 offset4 well">
+        <legend>Decrypt Data</legend>
+        <div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
+          <span data-bind="html:$root.flashText"></span>
+          <button type="button" class="close" data-dismiss="alert">×</button>
         </div>
+        <p class="text-error" data-bind="fadeVisible: !$root.encryptedData()">Warning: No encrypted data, import or new?</p>
+        <textarea rows='5' class="span4" placeholder="Private Key" data-bind="value: $root.privateKey"></textarea>
+        <input type="password" class="span4" placeholder="Password"  data-bind="value: decryptionPwd">
+        <label class="checkbox">
+          <input type="checkbox" name="remember" value="1"> Remember private key
+        </label>
+        <div class="btn-toolbar pull-right">
+          <button href="#importModal" class="btn" data-toggle="modal">Import/New</button>
+          <button class="btn-info btn" data-bind="click: decrypt, 
+            text: $root.encryptedData() ? 'Decrypt' : 'No Data',
+            enable: $root.encryptedData()">Decrypt</button>
+        </div>
+      </div>
     </div>
+
 
     <!-- Import Modal -->
     <div id="importModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true" >
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="importModalLabel">Import Passwords</h3>
       </div>
-      <div class="modal-body">
 
-        <form data-bind="submit: importData">
+      <form data-bind="submit: importData">
+
+        <div class="modal-body">
           <label class="radio">
           <input type="radio" name="action" value="enter-data" data-bind="checked: currentAct">
           Enter PGP encrypted data
@@ -197,28 +243,39 @@
           <label class="radio">
           <input type="radio" name="action" value="new-data" data-bind="checked: currentAct"> Create new data (overiding any stored values)?
           </label>
-          <textarea rows='5' class="span6" name="data" data-bind="value: importingData,
+          <textarea rows='5' class="span4" name="data" data-bind="value: importingData,
             fadeVisible: currentAct() === 'enter-data'"> </textarea>
         </div>
+      
         <div class="modal-footer">
           <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
           <button class="btn btn-primary" type="submit" >Import</button>
         </div>
+      
       </form>
     </div>
   </script>
 
   <script id="settingsTmpl" type="text/html">
-    <div class="span4 well">
-        <textarea class="span4" id="new_message" name="new_message"
-        placeholder="Click generate below..." rows="5" data-bind="value: $root.publicKey"></textarea>
-        <textarea class="span4" id="new_message" name="new_message"
-        placeholder="Click generate below..." rows="5" data-bind="value: $root.privateKey"></textarea>
-        <h6 class="pull-right">Generated: <span data-bind="text: keyDate"></span></h6>
-        <button class="btn btn-danger">Delete</button>
-        <button class="btn btn-danger">Export</button>
-        <button class="btn btn-info" data-bind="click:genKeys">Generate New</button>
+    <form data-bind="submit: saveConfig">
+    <div class="well">
+      <label class="checkbox">
+        <input type="checkbox" data-bind="checked: config.storeData">
+        Store Encrypted Password Data
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" data-bind="checked: config.storePub">
+        Store Public Key
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" data-bind="checked: config.storePriv">
+        Store Private Key
+      </label>
     </div>
+    <div class="btn-toolbar pull-right ">
+      <button class="btn btn-success" type="submit">Save Settings</button>
+    </div>
+    </form>
   </script>
 
   <!-- JS -->
@@ -228,6 +285,8 @@
   <script src="knockout-2.2.1.js"></script>
   <script src="knockout.localStorage.js"></script>
   <script src="encryptor.js"></script>
+  <script src="blob.js"></script>
+  <script src="filesaver.js"></script>
   <script src="app.js"></script>
   <!-- <script>document.write('<script src="http:/' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script> -->
 
