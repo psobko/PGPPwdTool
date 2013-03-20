@@ -70,10 +70,19 @@
       </div>
     </div>
 
+ 
 
   <!-- Base Template -->  
     <div data-bind="with: selectedView"  class="container">
-      <!-- Flash -->    
+      <!-- Flash --> 
+       <!-- aler alert-error-->
+    <div data-bind="foreach:$root.flashText()">
+      <div class="alert alert-error textcenter" id="flash" data-bind="fadeVisible:$root.flashText()">
+        <span data-bind="html:message"></span>
+        <a href="" data-bind="click: handler, text:action"></a>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    </div>   
      <!--  <div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
       <span data-bind="html:$root.flashText"></span>
       <button type="button" class="close" data-dismiss="alert">×</button>
@@ -85,12 +94,9 @@
 
     </div> <!-- /container -->
 
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-
 <!-- Templates - Move Later -->
   <script id="pwdsTmpl" type="text/html">
+<<<<<<< HEAD
   <!-- aler alert-error-->
     <div data-bind="foreach:$root.flashText()">
       <div class="alert alert-error textcenter" id="flash" data-bind="fadeVisible:$root.flashText()">
@@ -99,6 +105,8 @@
         <button type="button" class="close" data-dismiss="alert">&times;</button>
       </div>
     </div
+=======
+>>>>>>> UI fixes, refactoring.
     <div class="row">
       <table class="table table-hover" data-bind="fadeVisible: $root.isAuthenticated()">
         <thead>
@@ -138,7 +146,11 @@
     </div>
     <div class="btn-toolbar pull-right">
       <button class="btn btn-primary" data-bind="click: addPassword">New Password</button>
+<<<<<<< HEAD
       <button class="btn" data-bind="click: encrypt">Save</button>
+=======
+      <!--<button class="btn" data-bind="click: encrypt">Save</button>-->
+>>>>>>> UI fixes, refactoring.
     </div>
     <div>
       <textarea data-bind='value: lastSavedJson' rows='5' cols='60' > </textarea>
@@ -205,6 +217,7 @@
     <div class="" data-bind="fadeVisible:!$root.isAuthenticated()">
       <div class="span4 offset4 well">
         <legend>Decrypt Data</legend>
+<<<<<<< HEAD
         <div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
           <span data-bind="html:$root.flashText"></span>
           <button type="button" class="close" data-dismiss="alert">×</button>
@@ -221,6 +234,24 @@
             text: $root.encryptedData() ? 'Decrypt' : 'No Data',
             enable: $root.encryptedData()">Decrypt</button>
         </div>
+=======
+        <!--<div class="alert alert-error" data-bind="fadeVisible:$root.flashText()">
+          <span data-bind="html:$root.flashText"></span>
+          <button type="button" class="close" data-dismiss="alert">×</button>
+        </div>-->
+        <p class="text-error" data-bind="fadeVisible: !$root.encryptedData()">Warning: No encrypted data, import or new?</p>
+        <textarea rows='5' class="span4" placeholder="Private Key" data-bind="value: $root.privateKey"></textarea>
+        <input type="password" class="span4" placeholder="Password"  data-bind="value: decryptionPwd">
+        <label class="checkbox">
+          <input type="checkbox" name="remember" value="1"> Remember private key
+        </label>
+        <div class="btn-toolbar pull-right">
+          <button href="#importModal" class="btn" data-toggle="modal">Import/New</button>
+          <button class="btn-info btn" data-bind="click: decrypt, 
+            text: $root.encryptedData() ? 'Decrypt' : 'No Data',
+            enable: $root.encryptedData()">Decrypt</button>
+        </div>
+>>>>>>> UI fixes, refactoring.
       </div>
     </div>
 

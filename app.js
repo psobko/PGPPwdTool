@@ -20,6 +20,7 @@ $(function () {
     return viewModel.isAuthenticated;
   };
 
+<<<<<<< HEAD
   var setFlash = function(message, handler){
     console.log(viewModel.flashText);
     var flashArray = [];
@@ -30,6 +31,14 @@ $(function () {
     //viewModel.flashText.push({'abc':'abc'});
     //viewModel.flashText().push({'message':message, 'handler':handler});
     //ko.applyBindings(viewModel, document.getElementById('flash'));
+=======
+  var setFlash = function(message, action, handler){
+    viewModel.flashText.push({'message':message, 'action':action, 'handler':handler});
+  };
+
+  var removeFlash = function(flash){
+    viewModel.flashText.remove(flash);
+>>>>>>> UI fixes, refactoring.
   };
 
   var changeView = function(viewID){
@@ -42,10 +51,13 @@ $(function () {
     newConfig[param] = value;
     viewModel.config(newConfig);
   };
+<<<<<<< HEAD
 
   var encrypt = function(){
     todo('asd');
   }
+=======
+>>>>>>> UI fixes, refactoring.
 
   //Helper function
   var todo = function(msg){
@@ -83,10 +95,11 @@ $(function () {
                 alert('Enter key was pressed.');
                 e.preventDefault();
               }
-          });
-        },
-      update: function(element, valueAccessor) {
-      } 
+        })
+        .change(function(e) {
+          setFlash('Unsaved data!','Click here to save', self.encrypt);
+        });
+      }
   };
 
 /*============================================================
@@ -104,7 +117,6 @@ $(function () {
     self.importingData =  ko.observable(null);
 
     self.importData = function(){
-      //$('.modal').modal('hide');
       toggleModal();
       if(self.currentAct() === 'enter-data'){
         viewModel.encryptedData(self.importingData());
@@ -113,14 +125,17 @@ $(function () {
         viewModel.isAuthenticated(true);
         changeView(0);
         viewModel.passwords([]);
+<<<<<<< HEAD
         // self.addPassword();
+=======
+>>>>>>> UI fixes, refactoring.
       };
     };
     
     self.decrypt = function(){
       pwdEncryptor.importKeys(viewModel.publicKey(), viewModel.privateKey());
       if(!viewModel.encryptedData()){
-        viewModel.flashText('No data to decrypt!');
+        setFlash('No data to decrypt!');
         return;
       }
       var decrypted = pwdEncryptor.decryptMsg(viewModel.encryptedData(), self.decryptionPwd());
@@ -133,7 +148,7 @@ $(function () {
       }
       catch (e) {
         viewModel.isAuthenticated(false);
-        viewModel.flashText('Decryption Failed');
+        setFlash('Decryption failed!');
       }
       viewModel.passwords(passwordArray);
     };
@@ -157,27 +172,39 @@ $(function () {
 
     self.addPassword = function() { 
       viewModel.passwords.push(new Password);
+<<<<<<< HEAD
       setFlash('Unsaved data! <a href="#" data-bind="click: Click here to save.', self.encrypt);
+=======
+      setFlash('Unsaved data!','Click here to save', self.encrypt);
+>>>>>>> UI fixes, refactoring.
       viewModel.isSaved = false;
     };
 
     self.removePassword = function(password) {
       viewModel.passwords.remove(password);
-      setFlash('Unsaved data!');
+      setFlash('Unsaved data!','Click here to save', self.encrypt);
     };
 
     self.editEntry = function(edit){
-      setFlash('Unsaved data!');
+      setFlash('Unsaved data!','Click here to save', self.encrypt);
     };
 
+<<<<<<< HEAD
     self.encrypt = function() {
+=======
+    self.encrypt = function(flash) {
+>>>>>>> UI fixes, refactoring.
       todo('encrypt');
       pwdEncryptor.importKeys(viewModel.publicKey(), viewModel.privateKey());
       var passwordJSON = JSON.stringify(ko.toJS(viewModel.passwords), null, 2);
       var encrypted = pwdEncryptor.encryptMsg(passwordJSON);
       viewModel.encryptedData(encrypted);
       self.lastSavedJson(JSON.stringify(ko.toJS(viewModel.passwords), null, 2));
+<<<<<<< HEAD
       setFlash(null, null);
+=======
+      if(flash) removeFlash(flash);
+>>>>>>> UI fixes, refactoring.
     };
 
   };
@@ -206,6 +233,10 @@ $(function () {
       window.location='data:text/csv;charset=utf8,' + encodeURIComponent(viewModel.publicKey());
       saveConfig('dateSaved', new Date().toLocaleString());    
 
+<<<<<<< HEAD
+=======
+      //saving using filesaver.js - allows for filenames
+>>>>>>> UI fixes, refactoring.
       // try {
       //   saveAs(
       //     new Blob(
@@ -221,6 +252,7 @@ $(function () {
       //   viewModel.flashText('Export Failed');
       // }
     };
+<<<<<<< HEAD
   };
   
   /******************
@@ -234,8 +266,26 @@ $(function () {
     self.saveConfig = function(){
       viewModel.config(self.config);
     };
+=======
+>>>>>>> UI fixes, refactoring.
+  };
+  
+  /******************
+   *Settings Model
+   ******************/
+  var SettingsModel = function(){
+    var self = this;
+
+<<<<<<< HEAD
+=======
+    self.config = viewModel.config();
+    
+    self.saveConfig = function(){
+      viewModel.config(self.config);
+    };
   };
 
+>>>>>>> UI fixes, refactoring.
 /*============================================================
   View Controller
   ============================================================*/
@@ -276,10 +326,17 @@ $(function () {
             ]);
   
   var pwdEncryptor = new encrpytor;
+<<<<<<< HEAD
 
   checkData();
   changeView(0)
 
+=======
+
+  checkData();
+  changeView(0)
+
+>>>>>>> UI fixes, refactoring.
   ko.applyBindings(viewModel);
   
 });
